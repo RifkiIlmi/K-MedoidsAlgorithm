@@ -1,0 +1,185 @@
+{% extends '../main/base.html' %} {% block content%}
+<h1>Detail Bank Evaluation</h1>
+<br />
+
+<h3>{{ namaBank }}</h3>
+<br />
+
+<div class="row">
+    <div class="col-6">
+
+        {% for item in data %}
+        <p>
+            Tahun: <b>{{item.rasio_k_p.rasio_k.tahun}}</b> -> Klaster {{item.cluster}}
+            <a href="#" data-tahun="{{item.rasio_k_p.rasio_k.tahun}}" data-namabank="{{ namaBank }}" data-cluster="{{ item.cluster }}" class="btn btn-sm btn-outline-info sdetail">Detail</a>
+        </p>
+        {% endfor %}
+    </div>
+    <div class="col-4 mx-auto">
+        <div id="message"></div>
+    </div>
+</div>
+
+{% endblock content%}
+
+{% block javascript %}
+
+<script type="text/javascript">
+    $(function () {
+        $('.sdetail').click(function () {
+            var elem = $(this);
+            $.ajax({
+                type: "GET",
+                url: "{% url 'searchDetail' %}",
+                data: {
+                    tahun: elem.attr('data-tahun'),
+                    namabank: elem.attr('data-namabank'),
+                    cluster: elem.attr('data-cluster'),
+                },
+                dataType: "json",
+                success: function (response) {
+                    // console.log(response)
+                    let carstat = ''
+                    let nplstat = ''
+                    let roastat = ''
+                    let roestat = ''
+                    let nimstat = ''
+                    let ldrstat = ''
+
+                    if(response.car>12){
+                        carstat = 'Sangat Sehat'
+                        var carcolor = 'success'
+                    }else if(response.car >= 9 && response.car < 12){
+                        carstat = 'Sehat'
+                        var carcolor = 'success'
+                    }else if(response.car >= 8 && response.car < 9){
+                        carstat = 'Cukup Sehat'
+                        var carcolor = 'secondary'
+                    }else if(response.car > 6 && response.car < 8){
+                        carstat = 'Kurang Sehat'
+                        var carcolor = 'warning'
+                    }else if(response.car <= 6){
+                        carstat = 'Tidak Sehat'
+                        var carcolor = 'danger'
+                    }
+
+                    if(response.npl<2){
+                        nplstat = 'Sangat Sehat'
+                        var nplcolor = 'success'
+                    }else if(response.npl >= 2 && response.npl < 5){
+                        nplstat = 'Sehat'
+                        var nplcolor = 'success'
+                    }else if(response.npl >= 5 && response.npl < 8){
+                        nplstat = 'Cukup Sehat'
+                        var nplcolor = 'secondary'
+                    }else if(response.npl >= 8 && response.npl < 12){
+                        nplstat = 'Kurang Sehat'
+                        var nplcolor = 'warning'
+                    }else if(response.npl >= 12){
+                        nplstat = 'Tidak Sehat'
+                        var nplcolor = 'danger'
+                    }
+
+                    if(response.roa>1.5){
+                        roastat = 'Sangat Sehat'
+                        var roacolor = 'success'
+                    }else if(response.roa > 1.25 && response.roa <= 1.5){
+                        roastat = 'Sehat'
+                        var roacolor = 'success'
+                    }else if(response.roa > 0.5 && response.roa <= 1.25){
+                        roastat = 'Cukup Sehat'
+                        var roacolor = 'secondary'
+                    }else if(response.roa > 0 && response.roa <= 0.5){
+                        roastat = 'Kurang Sehat'
+                        var roacolor = 'warning'
+                    }else if(response.roa <= 0){
+                        roastat = 'Tidak Sehat'
+                        var roacolor = 'danger'
+                    }
+
+                    if(response.roe>20){
+                        roestat = 'Sangat Sehat'
+                        var roecolor = 'success'
+                    }else if(response.roe >= 12.51 && response.roe <= 20){
+                        roestat = 'Sehat'
+                        var roecolor = 'success'
+                    }else if(response.roe >= 5.01 && response.roe <= 12.5){
+                        roestat = 'Cukup Sehat'
+                        var roecolor = 'secondary'
+                    }else if(response.roe >= 0 && response.roe <= 5){
+                        roestat = 'Kurang Sehat'
+                        var roecolor = 'warning'
+                    }else if(response.roe < 0){
+                        roestat = 'Tidak Sehat'
+                        var roecolor = 'danger'
+                    }
+
+                    if(response.nim>5){
+                        nimstat = 'Sangat Sehat'
+                        var nimcolor = 'success'
+                    }else if(response.nim >= 2.01 && response.nim <= 5){
+                        nimstat = 'Sehat'
+                        var nimcolor = 'success'
+                    }else if(response.nim >= 1.51 && response.nim <= 2){
+                        nimstat = 'Cukup Sehat'
+                        var nimcolor = 'secondary'
+                    }else if(response.nim >= 0 && response.nim <=  1.49){
+                        nimstat = 'Kurang Sehat'
+                        var nimcolor = 'warning'
+                    }else if(response.nim < 0){
+                        nimstat = 'Tidak Sehat'
+                        var nimcolor = 'danger'
+                    }
+
+                    if(response.ldr<=75){
+                        ldrstat = 'Sangat Sehat'
+                        var ldrcolor = 'success'
+                    }else if(response.ldr > 75 && response.ldr <= 85){
+                        ldrstat = 'Sehat'
+                        var ldrcolor = 'success'
+                    }else if(response.ldr > 85 && response.ldr <= 100){
+                        ldrstat = 'Cukup Sehat'
+                        var ldrcolor = 'secondary'
+                    }else if(response.ldr > 100 && response.ldr <= 120){
+                        ldrstat = 'Kurang  Sehat'
+                        var ldrcolor = 'warning'
+                    }else if(response.ldr > 120){
+                        ldrstat = 'Tidak Sehat'
+                        var ldrcolor = 'danger'
+                    }
+
+                    $('#message').html(`
+                        <div class="card">
+                            <div class="card-header">
+                            Rata-Rata Tahun ${response.tahun} | Klaster ${response.cluster}
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">CAR : ${response.car.toFixed(3)} 
+                                    <i class="float-right text-${carcolor}">${carstat}</i>
+                                </p>
+                                <p class="card-text">NPL : ${response.npl.toFixed(3)} 
+                                    <i class="float-right text-${nplcolor}">${nplstat}</i>
+                                </p>
+                                <p class="card-text">ROA : ${response.roa.toFixed(3)} 
+                                    <i class="float-right text-${roacolor}">${roastat}</i>
+                                </p>
+                                <p class="card-text">ROE : ${response.roe.toFixed(3)} 
+                                    <i class="float-right text-${roecolor}">${roestat}</i>
+                                </p>
+                                <p class="card-text">NIM : ${response.nim.toFixed(3)} 
+                                    <i class="float-right text-${nimcolor}">${nimstat}</i>
+                                </p>
+                                <p class="card-text">LDR : ${response.ldr.toFixed(3)} 
+                                    <i class="float-right text-${ldrcolor}">${ldrstat}</i>
+                                </p>
+                            </div>
+                        </div>
+                        `);
+                }
+            });
+            return false;
+        });
+    });
+</script>
+
+{% endblock javascript%}

@@ -1,0 +1,447 @@
+{% extends '../main/base.html' %} {% block content%}
+
+<h1>Data Mining</h1>
+<br />
+
+{% for msg in messages %}
+<div class="alert alert-{{msg.level_tag}}" role="alert">
+    {{msg.message}}
+</div>
+{% endfor %}
+
+<form action="{% url 'mining' %}" method="post">
+    {% csrf_token %}
+    <div class="form-row">
+        <div class="form-group col-md-5">
+            <label for="tahun">Pilih Tahun Data</label>
+            {{ form.tahun }}
+        </div>
+        <div class="form-group col-md-4">
+            <label for="method">Algoritma</label>
+            {{ form.method }}
+        </div>
+        <div class="form-group col-md-3">
+            <label for="klaster">Jumlah Klaster</label>
+            {{ form.klaster }}
+        </div>
+        <div class="form-group col-md-10 mx-auto">
+            <button class="btn btn-primary form-control" type="submit">Run</button>
+        </div>
+    </div>
+</form>
+
+<hr>
+
+<!-- filter data  -->
+<div class="row">
+    <div class='col-md-4'>
+
+    </div>
+    <div class='col-md-4'></div>
+    <div class='col-md-3'>
+        <form action="{% url 'daminIndex' %}" method="post">
+            {% csrf_token %}
+            <select name="filter-key" class="form-control">
+                <option value="2012" selected>Filter Tahun</option>
+                <option value="2012">2012</option>
+                <option value="2013">2013</option>
+                <option value="2014">2014</option>
+                <option value="2015">2015</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+            </select>
+    </div>
+    <div class='col-md-1'>
+        <button class="btn btn-secondary" type="submit">Apply</button>
+        </form>
+    </div>
+
+</div>
+
+<h4>Hasil Clustering Data <b>Tahun {{year}}</b></h4>
+<div class="form-row">
+    <div class="form-group col-md-12">
+        <button id="process" value="{{year}}" data-toggle="modal" data-target="#summary"
+            class="btn btn-outline-secondary">Summary</button>
+    </div>
+</div>
+
+<table id="clustering" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%">
+    <thead>
+        <tr>
+            <th>Nama Bank</th>
+            <th>Cluster</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in data %}
+        <tr>
+            <td>{{ item.rasio_k_p.rasio_k.nama_bank }}</td>
+            <td>{{ item.cluster }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<!-- Modal -->
+<div class="modal fade" id="summary" tabindex="-1" role="dialog" aria-labelledby="summaryTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="summaryHeaderTitle">Summary - Data Tahun {{year}}</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="summary-content" class="modal-body">
+                <div id="dataSC"></div>
+                <div id="summarydata"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content%}
+
+
+{% block javascript %}
+
+<script>
+    let process = $('#process').val()
+    //console.log(stats)
+
+    $('#process').click(function () {
+        $.ajax({
+            type: 'GET',
+            url: "{% url 'summaryProcess' year %}",
+            success: function (response) {
+                if (response.data.status == 1) {
+                    console.log(response.data)
+
+                    let count = response.data.count
+                    let carMean = response.data.mean.rasio_k_p_id__rasio_k_id__car
+                    let nplMean = response.data.mean.rasio_k_p_id__rasio_k_id__npl
+                    let roaMean = response.data.mean.rasio_k_p_id__rasio_k_id__roa
+                    let roeMean = response.data.mean.rasio_k_p_id__rasio_k_id__roe
+                    let nimMean = response.data.mean.rasio_k_p_id__rasio_k_id__nim
+                    let ldrMean = response.data.mean.rasio_k_p_id__rasio_k_id__ldr
+                    
+                    const groupCount= () => {
+                        let html = ``
+                        for (const [key, value] of Object.entries(count)) {
+                            html += `
+                                <p><b>${key}</b>: ${value} row data</p>
+                            `
+                        }
+                        return html
+                    }
+
+                    const meanCar= () => {
+                        let html = ``
+                        for (const [key, value] of Object.entries(carMean)) {
+                            if(value>12){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-success">Sangat Sehat</i>
+                                </p> 
+                                `
+                            }else if(value >= 9 && value < 12){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-success">Sehat</i>
+                                </p> 
+                                `
+                            }else if(value >= 8 && value < 9){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-secondary">Cukup Sehat</i>
+                                </p> 
+                                `
+                            }else if(value > 6 && value < 8){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-warning">Kurang Sehat</i>
+                                </p> 
+                                `
+                            }else if(value <= 6){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-danger">Tidak Sehat</i></small>
+                                </p> 
+                                `
+                            }
+                        }
+                        return html
+                    }
+
+                    const meanNpl= () => {
+                        let html = ``
+                        for (const [key, value] of Object.entries(nplMean)) {
+                            if(value<2){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-success">Sangat Sehat</i>
+                                </p> 
+                                `
+                            }else if(value >= 2 && value < 5){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-success">Sehat</i>
+                                </p> 
+                                `
+                            }else if(value >= 5 && value < 8){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-secondary">Cukup Sehat</i>
+                                </p> 
+                                `
+                            }else if(value >= 8 && value < 12){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-warning">Kurang Sehat</i>
+                                </p> 
+                                `
+                            }else if(value >= 12){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-danger">Tidak Sehat</i></small>
+                                </p> 
+                                `
+                            }
+                        }
+                        return html
+                    }
+
+                    const meanRoa= () => {
+                        let html = ``
+                        for (const [key, value] of Object.entries(roaMean)) {
+                            if(value>1.5){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-success">Sangat Sehat</i>
+                                </p> 
+                                `
+                            }else if(value > 1.25 && value <= 1.5){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-success">Sehat</i>
+                                </p> 
+                                `
+                            }else if(value > 0.5 && value <= 1.25){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-secondary">Cukup Sehat</i>
+                                </p> 
+                                `
+                            }else if(value > 0 && value <= 0.5){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-warning">Kurang Sehat</i>
+                                </p> 
+                                `
+                            }else if(value <= 0){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-danger">Tidak Sehat</i></small>
+                                </p> 
+                                `
+                            }
+                        }
+                        return html
+                    }
+
+                    const meanRoe= () => {
+                        let html = ``
+                        for (const [key, value] of Object.entries(roeMean)) {
+                            if(value>20){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-success">Sangat Sehat</i>
+                                </p> 
+                                `
+                            }else if(value >= 12.51 && value <= 20){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-success">Sehat</i>
+                                </p> 
+                                `
+                            }else if(value >= 5.01 && value <= 12.5){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-secondary">Cukup Sehat</i>
+                                </p> 
+                                `
+                            }else if(value >= 0 && value <= 5){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-warning">Kurang Sehat</i>
+                                </p> 
+                                `
+                            }else if(value < 0){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-danger">Tidak Sehat</i></small>
+                                </p> 
+                                `
+                            }
+                        }
+                        return html
+                    }
+
+                    const meanNim= () => {
+                        let html = ``
+                        for (const [key, value] of Object.entries(nimMean)) {
+                            if(value>5){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-success">Sangat Sehat</i>
+                                </p> 
+                                `
+                            }else if(value >= 2.01 && value <= 5){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-success">Sehat</i>
+                                </p> 
+                                `
+                            }else if(value >= 1.51 && value <= 2){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-secondary">Cukup Sehat</i>
+                                </p> 
+                                `
+                            }else if(value >= 0 && value <=  1.49){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-warning">Kurang Sehat</i>
+                                </p> 
+                                `
+                            }else if(value < 0){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-danger">Tidak Sehat</i></small>
+                                </p> 
+                                `
+                            }
+                        }
+                        return html
+                    }
+
+                    const meanLdr= () => {
+                        let html = ``
+                        for (const [key, value] of Object.entries(ldrMean)) {
+                            if(value<=75){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-success">Sangat Sehat</i>
+                                </p> 
+                                `
+                            }else if(value > 75 && value <= 85){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-success">Sehat</i>
+                                </p> 
+                                `
+                            }else if(value > 85 && value <= 100){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-secondary">Cukup Sehat</i>
+                                </p> 
+                                `
+                            }else if(value > 100 && value <= 120){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-warning">Kurang Sehat</i>
+                                </p> 
+                                `
+                            }else if(value > 120){
+                                html += `
+                                <p><b>C_${key}</b>: <i>${value.toFixed(3)}</i>
+                                    <i class="text-danger">Tidak Sehat</i></small>
+                                </p> 
+                                `
+                            }
+                        }
+                        return html
+                    }
+                    
+                    $('#dataSC').html(`
+                        <h4 class="text-center mb-2">Total Data Per-cluster</h4>
+                        ${groupCount()}
+                        <hr />
+                    `)
+
+                    $('#summarydata').html(`
+                    <h4 class="text-center mb-2">Rata-Rata Variabel Per-cluster</h4>
+                    <div class="row justify-content-around">
+                        <div class="sumcard mb-3">
+                            <p class="text-center pt-3">Rata-rata CAR</p>
+                            <hr />
+                            <div class="isi">
+                                ${meanCar()}
+                            </div>
+                        </div>
+                        <div class="sumcard mb-3">
+                            <p class="text-center pt-3">Rata-rata NPL</p>
+                            <hr />
+                            <div class="isi">
+                                ${meanNpl()}
+                            </div>
+                        </div>
+                        <div class="sumcard mb-3">
+                            <p class="text-center pt-3">Rata-rata ROA</p>
+                            <hr />
+                            <div class="isi">
+                                ${meanRoa()}
+                            </div>
+                        </div>
+                        <div class="sumcard mb-3">
+                            <p class="text-center pt-3">Rata-rata ROE</p>
+                            <hr />
+                            <div class="isi">
+                                ${meanRoe()}
+                            </div>
+                        </div>
+                        <div class="sumcard mb-3">
+                            <p class="text-center pt-3">Rata-rata NIM</p>
+                            <hr />
+                            <div class="isi">
+                                ${meanNim()}
+                            </div>
+                        </div>
+                        <div class="sumcard mb-3">
+                            <p class="text-center pt-3">Rata-rata LDR</p>
+                            <hr />
+                            <div class="isi">
+                                ${meanLdr()}
+                            </div>
+                        </div>
+                    </div>
+                    `)
+                    $(".sumcard").css({"box-shadow": "0 4px 8px 0 rgba(0,0,0,0.2)", "transition": "0.3s","width":"30%"});
+                    $(".isi").css({"padding": "2px 16px"});
+                    $(".sumcard").mouseenter(function() {
+                        $(this).css("box-shadow", "0 8px 16px 0 rgba(0,0,0,0.2)")
+                    }).mouseleave(function() {
+                         $(this).css("box-shadow", "0 4px 8px 0 rgba(0,0,0,0.2)")
+                    });
+
+                } else if (response.data.status == 0) {
+                    console.log(response.data)
+                    $('#stat-content').html(
+                        `<p class="text-danger text-center">${response.data.message}</p>`)
+                } else {
+                    console.log(response.data)
+                }
+            },
+        })
+    })
+</script>
+
+{% endblock javascript %}

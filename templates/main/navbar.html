@@ -1,0 +1,30 @@
+<nav class="navbar navbar-expand-lg navbar-mainbg fixed-top">
+    <a class="navbar-brand navbar-logo" href="{% url 'homeIndex' %}">Mining Apps</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fa fa-bars text-white"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto">
+           
+            <li class="nav-item {% setActiveClass name 'home' %}">
+                <a class="nav-link" href="{% url 'homeIndex' %}"><i class="fa fa-house-user"></i>Dashboard</a>
+            </li>
+            <li class="nav-item {% setActiveClass name 'datasets' %}">
+                <a class="nav-link" href="{% url 'datasetsIndex' %}"><i class="fa fa-database"></i>Datasets</a>
+            </li>
+            <li class="nav-item {% setActiveClass name 'preprocessing' %}">
+                <a class="nav-link" href="{% url 'preprocessingIndex' %}"><i class="fas fa-hourglass-half"></i>Pre-processing</a>
+            </li>
+            <li class="nav-item {% setActiveClass name 'transformation' %}">
+                <a class="nav-link" href="{% url 'transformationIndex' %}"><i class="fa fa-exchange-alt"></i>Transformation</a>
+            </li>
+            <li class="nav-item {% setActiveClass name 'datamining' %}">
+                <a class="nav-link" href="{% url 'daminIndex' %}"><i class="fa fa-hard-hat"></i>Data Mining</a>
+            </li>
+            <li class="nav-item {% setActiveClass name 'evaluation' %}">
+                <a class="nav-link" href="{% url 'evaluationIndex' %}"><i class="fa fa-poll"></i>Evaluation</a>
+            </li>
+        </ul>
+    </div>
+</nav>

@@ -1,0 +1,292 @@
+{% extends '../main/base.html' %} {% block content%}
+<h1>DATASETS - Rasio Keuangan Bank Di Indonesia</h1>
+<br />
+{% for msg in messages %}
+<div class="alert alert-{{msg.level_tag}}" role="alert">
+    {{msg.message}}
+</div>
+{% endfor %}
+
+<div class="row">
+    <div class='col-md-4'>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalimport">
+            Import File
+        </button>
+    </div>
+    <div class='col-md-4'></div>
+    <div class='col-md-3'>
+        <form action="{% url 'datasetsIndex' %}" method="post">
+            {% csrf_token %}
+            <select name="filter-key" class="form-control">
+                <option value="2012" selected>Filter Tahun</option>
+                <option value="2012">2012</option>
+                <option value="2013">2013</option>
+                <option value="2014">2014</option>
+                <option value="2015">2015</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+            </select>
+    </div>
+    <div class='col-md-1'>
+        <button class="btn btn-secondary" type="submit">Apply</button>
+        </form>
+    </div>
+
+</div>
+
+<br />
+{% comment %} <form action="{% url 'exportData' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <select name="file-format" class="form-control my-3" required>
+        <option selected>Pilih format file...</option>
+        <option>CSV</option>
+        <option>JSON</option>
+        <option>XLSX (Excel)</option>
+    </select>
+    <button class="btn btn-primary" type="submit" id="link-with-redirect">Export</button>
+</form>
+<a href="{% url 'datasetsIndex' %}">Back</a> {% endcomment %}
+
+<h4>Data Rasio Keuangan <b>Tahun {{year}}</b></h4>
+
+<div class="form-row">
+    <div class="form-group col-md-12">
+        <button id="stat" value="{{year}}" data-toggle="modal" data-target="#statistics" class="btn btn-outline-info">Statistics</button>
+    </div>
+</div>
+
+<table id="datasets" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%">
+    <thead>
+        <tr>
+            <th>Nama Bank</th>
+            <th>CAR</th>
+            <th>NPL</th>
+            <th>ROA</th>
+            <th>ROE</th>
+            <th>NIM</th>
+            <th>LDR</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in data%}
+        <tr>
+            <td>{{ item.nama_bank }}</td>
+            <td>{{ item.car }}</td>
+            <td>{{ item.npl }}</td>
+            <td>{{ item.roa }}</td>
+            <td>{{ item.roe }}</td>
+            <td>{{ item.nim }}</td>
+            <td>{{ item.ldr }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<!-- Modal Export -->
+<div class="modal fade" id="modalimport" tabindex="-1" role="dialog" aria-labelledby="modalimport" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form action="{% url 'importData' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="file" name="importData">
+                    <select name="file-format" class="form-control my-3">
+                        <option selected>Pilih format file...</option>
+                        <option>CSV</option>
+                        <option>JSON</option>
+                        <option>EXCEL</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit">Import</button>
+                    <a href="{% url 'datasetsIndex' %}">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="statistics" tabindex="-1" role="dialog" aria-labelledby="statisticsTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="statisticsHeaderTitle">Statistik - Data Tahun {{year}}</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="stat-content" class="modal-body">
+                <h5>Summary</h5>
+                <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Variable</th>
+                            <th>Count</th>
+                            <th>Mean</th>
+                            <th>Std</th>
+                            <th>Min</th>
+                            <th>25%</th>
+                            <th>50%</th>
+                            <th>75%</th>
+                            <th>Max</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryData">
+                    </tbody>
+                </table>
+                <div id="other">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.getElementById('link-with-redirect').addEventListener('click', function () {
+        setTimeout(function () {
+            // Should be triggered after download started
+            document.location.href = '{% url "datasetsIndex" %}';
+        }, 1000);
+    }, false);
+</script>
+
+{% endblock content%}
+
+{% block javascript %}
+ 
+<script>
+    let stats = $('#stat').val()
+    //console.log(stats)
+
+    $('#stat').click(function () {
+        $.ajax({
+            type: 'GET',
+            url: "{% url 'statistics' year %}",
+            success: function (response) {
+                if (response.data.status == 1) {
+                  //  console.log(response.data)
+                    let duplicate = Object.keys(response.data.duplicate).length
+                    let describes = response.data.describe
+                    let missing = response.data.missing_values
+
+                    ///console.log(duplicate)
+
+                    const missing_v= () => {
+                        let html = ``
+                        for (const [key, value] of Object.entries(missing)) {
+                            html += `
+                                <tr>
+                                    <td style="padding:0 8px;"  >${key}</td>
+                                    <td style="padding:0 8px;"  >:</td>
+                                    <td style="padding:0 8px;"  >${value}</td>
+                                </tr>
+                            `
+                        }
+                        return html
+                    }
+
+                    const carDesc = () => {
+                        let html = ``
+                        for (const [key, value] of Object.entries(describes.car)) {
+                            html += `<td>${value.toFixed(2)}</td>`
+                        }
+                        return html
+                    }
+                    const nplDesc = () => {
+                        let html = ``
+                        for (const [key, value] of Object.entries(describes.npl)) {
+                            html += `<td>${value.toFixed(2)}</td>`
+                        }
+                        return html
+                    }
+                    const roaDesc = () => {
+                        let html = ``
+                        for (const [key, value] of Object.entries(describes.roa)) {
+                            html += `<td>${value.toFixed(2)}</td>`
+                        }
+                        return html
+                    }
+                    const roeDesc = () => {
+                        let html = ``
+                        for (const [key, value] of Object.entries(describes.roe)) {
+                            html += `<td>${value.toFixed(2)}</td>`
+                        }
+                        return html
+                    }
+                    const nimDesc = () => {
+                        let html = ``
+                        for (const [key, value] of Object.entries(describes.nim)) {
+                            html += `<td>${value.toFixed(2)}</td>`
+                        }
+                        return html
+                    }
+                    const ldrDesc = () => {
+                        let html = ``
+                        for (const [key, value] of Object.entries(describes.ldr)) {
+                            html += `<td>${value.toFixed(2)}</td>`
+                        }
+                        return html
+                    }
+                    
+                    $('#summaryData').html(`
+                        <tr>
+                            <td><b>CAR</b></td>
+                            ${carDesc()}
+                        </tr>
+                        <tr>
+                            <td><b>NPL</b></td>
+                            ${nplDesc()}
+                        </tr>
+                        <tr>
+                            <td><b>ROA</b></td>
+                            ${roaDesc()}
+                        </tr>
+                        <tr>
+                            <td><b>ROE</b></td>
+                            ${roeDesc()}
+                        </tr>
+                        <tr>
+                            <td><b>NIM</b></td>
+                            ${nimDesc()}
+                        </tr>
+                        <tr>
+                            <td><b>LDR</b></td>
+                            ${ldrDesc()}
+                        </tr>
+                        `)
+                    $('#other').html(`
+                        <p>Data Duplikat: ${duplicate} <i>row data</i></p>
+                        <p>Missing Values: </p>
+                        <table class="table-striped">
+                            ${missing_v()}
+                        </table>
+                    `)
+                } else if (response.data.status == 0) {
+                    console.log(response.data)
+                    $('#stat-content').html(
+                        `<p class="text-danger text-center">${response.data.message}</p>`)
+                } else {
+                    console.log(response.data)
+                }
+            },
+        })
+    })
+</script>
+
+{% endblock javascript %}

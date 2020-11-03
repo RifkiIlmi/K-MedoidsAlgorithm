@@ -1,0 +1,95 @@
+{% extends '../main/base.html' %} {% block content%}
+<h1>Data Preprocessing</h1>
+<br />
+
+{% for msg in messages %}
+<div class="alert alert-{{msg.level_tag}}" role="alert">
+    {{msg.message}}
+</div>
+{% endfor %}
+
+<!-- Preprocessing data  -->
+<form action="{% url 'processing' %}" method="post">
+    {% csrf_token %}
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="tahunData">Pilih Tahun Data</label>
+            {{ form.tahun }}
+        </div>
+        <div class="form-group col-md-8"></div>
+        <div class="form-group col-md-6">
+            <label for="duplicate">Remove Duplicate</label>
+            {{ form.duplicate }}
+        </div>
+        <div class="form-group col-md-6">
+            <label for="missing">Missing Value Strategy</label>
+            {{ form.missing}}
+        </div>
+        <div class="form-group col-md-10 mx-auto">
+            <button class="btn btn-primary form-control" type="submit">Process</button>
+        </div>
+    </div>
+</form>
+
+<hr>
+
+<!-- filter data  -->
+<div class="row">
+    <div class='col-md-4'>
+
+    </div>
+    <div class='col-md-4'></div>
+    <div class='col-md-3'>
+        <form action="{% url 'preprocessingIndex' %}" method="post">
+            {% csrf_token %}
+            <select name="filter-key" class="form-control">
+                <option value="2012" selected>Filter Tahun</option>
+                <option value="2012">2012</option>
+                <option value="2013">2013</option>
+                <option value="2014">2014</option>
+                <option value="2015">2015</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+            </select>
+    </div>
+    <div class='col-md-1'>
+        <button class="btn btn-secondary" type="submit">Apply</button>
+        </form>
+    </div>
+
+</div>
+
+<h4>Data Rasio Keuangan <b>Tahun {{year}}</b></h4>
+
+<table id="processed" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%">
+    <thead>
+        <tr>
+            <th>Nama Bank</th>
+            <th>CAR</th>
+            <th>NPL</th>
+            <th>ROA</th>
+            <th>ROE</th>
+            <th>NIM</th>
+            <th>LDR</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in data %}
+        <tr>
+            <td>{{ item.rasio_k.nama_bank }}</td>
+            <td>{{ item.car }}</td>
+            <td>{{ item.npl }}</td>
+            <td>{{ item.roa }}</td>
+            <td>{{ item.roe }}</td>
+            <td>{{ item.nim }}</td>
+            <td>{{ item.ldr }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock content%}
+
