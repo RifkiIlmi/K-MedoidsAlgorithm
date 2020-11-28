@@ -112,7 +112,6 @@ def summaryProcess(request, year):
         cek = KMedoids.objects.filter(rasio_k_p_id__rasio_k_id__tahun = year).count()
 
         # print(cek)
- 
         if cek > 0:
             dat = KMedoids.objects.filter(rasio_k_p_id__rasio_k_id__tahun = year)
             # print(dat.values('rasio_k_p_id__rasio_k_id__nama_bank'))

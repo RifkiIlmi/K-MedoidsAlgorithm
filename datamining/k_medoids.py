@@ -37,8 +37,14 @@ class k_medoids:
         self.medoids = []
         
         #Starting medoids will be random members from data set X
-        indexes = np.random.randint(0, len(X)-1,self.k)
-        self.medoids = X[indexes]
+        list =[]
+        for num in range(1,len(X)-1,10):
+            list.append(num)
+            if len(list)  >= self.k:
+                break
+
+        # indexes = np.random.randint(0, len(X)-1,self.k)
+        self.medoids = X[np.array(list)]
         
         for i in range(0,self.k):
             self.medoids_cost.append(0)

@@ -31,25 +31,39 @@ def index(request):
     }
     return render(request,'evaluation/index.html', context)
 
+# def dbi(data, iters):
+#     XD = data.iloc[:,2:8]
+#     XY = XD.astype(np.float)
+#     X = XY[['car','npl','roa','roe','nim','ldr']].to_numpy()
+
+#     best = {}
+#     for it in range(iters):
+#         dbi =[]
+#         for i in range(2, 9):
+#             kmedoidsValidityByDBI = k_medoids(k=i)
+#             kmedoidsValidityByDBI.fit(X)
+#             labels = kmedoidsValidityByDBI.predict(X)
+#             dbi.append(davies_bouldin_score(X, labels))
+#         minimum = min(dbi)
+#         minBest = dbi.index(minimum)+2
+#         key = 'k_'+ str(minBest) +'_iter_'+ str(it)
+#         best[key] = minimum
+
+#     return best
+
 def dbi(data, iters):
     XD = data.iloc[:,2:8]
     XY = XD.astype(np.float)
     X = XY[['car','npl','roa','roe','nim','ldr']].to_numpy()
 
-    best = {}
-    for it in range(iters):
-        dbi =[]
-        for i in range(2, 9):
-            kmedoidsValidityByDBI = k_medoids(k=i)
-            kmedoidsValidityByDBI.fit(X)
-            labels = kmedoidsValidityByDBI.predict(X)
-            dbi.append(davies_bouldin_score(X, labels))
-        minimum = min(dbi)
-        minBest = dbi.index(minimum)+2
-        key = 'k_'+ str(minBest) +'_iter_'+ str(it)
-        best[key] = minimum
+    dbi =[]
+    for i in range(2, iters):
+        kmedoidsValidityByDBI = k_medoids(k=i)
+        kmedoidsValidityByDBI.fit(X)
+        labels = kmedoidsValidityByDBI.predict(X)
+        dbi.append(davies_bouldin_score(X, labels))
 
-    return best
+    return dbi
 
 def evaluate(request):
     """
