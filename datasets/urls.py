@@ -7,4 +7,5 @@ urlpatterns = [
     path('exportData/', export_data, name = "exportData"), 
     path('importData/', import_data, name = "importData"),
     path('statistics/<str:year>', statistics, name = "statistics"),
+    path('resetData/<str:year>', resetData, name = "resetData"),
 ]

@@ -52,8 +52,11 @@
 <h4>Data Rasio Keuangan <b>Tahun {{year}}</b></h4>
 
 <div class="form-row">
-    <div class="form-group col-md-12">
+    <div class="form-group col-md-1 mr-2">
         <button id="stat" value="{{year}}" data-toggle="modal" data-target="#statistics" class="btn btn-outline-info">Statistics</button>
+    </div>
+    <div class="form-group col-md-2">
+        <button id="resetdata" value="{{year}}" data-toggle="modal" data-target="#reset" class="btn btn-outline-danger">Reset Data {{year}}</button>
     </div>
 </div>
 
@@ -92,7 +95,7 @@
             <form action="{% url 'importData' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">Import File</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -115,7 +118,7 @@
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal Statistics-->
 <div class="modal fade" id="statistics" tabindex="-1" role="dialog" aria-labelledby="statisticsTitle"
     aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -152,6 +155,29 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Reset -->
+<div class="modal fade" id="reset" tabindex="-1" role="dialog" aria-labelledby="reset" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form action="{% url 'resetData' year %}" method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Reset Data Tahun {{ year }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h4 class="text-center">Yakin ?!</h4>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" type="submit">Reset</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

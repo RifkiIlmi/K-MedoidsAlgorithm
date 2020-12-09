@@ -21,7 +21,7 @@ def index(request):
     
     datasets_filter = Evaluation.objects.all().order_by('tahun')
     searchItem = ProsesKDD.objects.select_related('rasio_k').values_list('rasio_k__nama_bank', flat=True)
-
+    
     context = {
         'data': datasets_filter,
         'lists': set(searchItem),
@@ -56,13 +56,13 @@ def dbi(data, iters):
     XY = XD.astype(np.float)
     X = XY[['car','npl','roa','roe','nim','ldr']].to_numpy()
 
-    dbi =[]
-    for i in range(2, iters):
+    dbi = {}
+    for i in range(2, iters+1):
         kmedoidsValidityByDBI = k_medoids(k=i)
         kmedoidsValidityByDBI.fit(X)
         labels = kmedoidsValidityByDBI.predict(X)
-        dbi.append(davies_bouldin_score(X, labels))
-
+        dbi['k'+str(i)] = round(davies_bouldin_score(X, labels),3)
+    
     return dbi
 
 def evaluate(request):

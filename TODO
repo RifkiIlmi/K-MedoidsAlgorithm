@@ -23,9 +23,9 @@ Todo:
     ✔ search bank untuk cek => dapat bank lihat cluster pertahun -> see detail select bank by cluster @done(20-11-03 23:45)
     ✘ summary data => describe() dan is_null @cancelled(20-10-29 16:47)
     ✘ optional grafik per tahun @cancelled(20-10-11 12:12)
-  ☐ tambah reset data per menu
+  ✔ tambah reset data per menu @done(20-12-10 06:30)
   ✔ data mining summary belum 100% (tampilannya) @done(20-10-23 15:16)
-  ✘ nama bank warna status (precessed, transformed, clustered) @cancelled(20-10-23 15:16)
+  ☐ nama bank warna status (precessed, transformed, clustered)
   ✘ statisctics tiap process @cancelled(20-10-11 12:08)
   ☐ statisctics dipreprocessing
   ✔ buat table evaluation (c_car,c_npl,....,best_cluster) @done(20-10-05 14:35)

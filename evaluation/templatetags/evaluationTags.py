@@ -10,4 +10,5 @@ def truncate(str):
     res = re.sub("[{}']", '', str)
     resu = re.sub("[:]",' =>', res)
     result = re.sub("[,]",'\n',resu)
+    
     return result

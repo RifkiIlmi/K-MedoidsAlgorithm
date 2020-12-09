@@ -120,3 +120,8 @@ def statistics(request, year):
         return JsonResponse({'data': data}, status=200)
 
     return JsonResponse({}, status = 400)
+
+def resetData(request, year):
+    RasioKeuangan.objects.filter(tahun = year).delete()
+    messages.add_message(request, messages.WARNING, 'Success! Data '+year+' Deleted')
+    return redirect('datasetsIndex')

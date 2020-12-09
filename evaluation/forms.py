@@ -28,7 +28,7 @@ VMETHOD = (
 class EvaluationForm(forms.Form):
     tahun = forms.ChoiceField(widget=forms.Select(attrs={'id':'tahun','class':'form-control'}), choices=TAHUN)
     vmethod = forms.ChoiceField(widget=forms.Select(attrs={'id':'vmethod','class':'form-control'}), choices=VMETHOD)
-    iter = forms.CharField(widget=forms.NumberInput(attrs={'id':'iters','min':3,'max':20,'class':'form-control'}))
+    iter = forms.CharField(widget=forms.NumberInput(attrs={'id':'iters','min':3,'max':10,'class':'form-control'}))
 
 
         

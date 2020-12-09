@@ -40,11 +40,15 @@ class k_medoids:
         list =[]
         for num in range(1,len(X)-1,10):
             list.append(num)
+            if num+10 > len(X)-1:
+                list.append(4)
+            # print(list)
             if len(list)  >= self.k:
                 break
 
         # indexes = np.random.randint(0, len(X)-1,self.k)
         self.medoids = X[np.array(list)]
+        # self.medoids = X[indexes]
         
         for i in range(0,self.k):
             self.medoids_cost.append(0)
@@ -97,6 +101,7 @@ class k_medoids:
             #Now we have the optimal medoid of the current cluster
             new_medoids.append(new_medoid)
         
+        # print('new',new_medoids)
         #If not converged yet, accept the new medoids
         if not self.isConverged(new_medoids):
             self.medoids = new_medoids
